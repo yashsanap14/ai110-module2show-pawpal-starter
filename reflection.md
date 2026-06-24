@@ -5,8 +5,128 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+    1. a user should be able to add a pet
+    2. a user will have his profile under which he will add his pets 
+    3. Inside  a pets profile it will contain all the details of the pet
+    4. After that  a user can be able schedule the tasks for pet like walk, feeding, grooming on basis of priority
+    5. create a daily plan and why it craeted a plan
+
 - What classes did you include, and what responsibilities did you assign to each?
 
+User
+
+Responsible for storing the pet owner’s information.
+
+Attributes:
+
+userId
+name
+email
+password
+phoneNumber
+
+Responsibilities:
+
+createProfile()
+addPet()
+editProfile()
+viewPets()
+
+Relationship:
+
+One User can have many Pets.
+Pet
+
+Responsible for storing details about each pet.
+
+Attributes:
+
+petId
+name
+age
+type
+breed
+weight
+healthNotes
+specialNeeds
+
+Responsibilities:
+
+updatePetDetails()
+viewPetProfile()
+getPetCareNeeds()
+
+Relationship:
+
+Each Pet belongs to one User.
+Each Pet can have many Tasks.
+Task
+
+Responsible for storing pet care activities.
+
+Attributes:
+
+taskId
+taskName
+taskType
+description
+priority
+dueTime
+status
+frequency
+
+Examples of task types:
+
+Feeding
+Walking
+Grooming
+Medication
+Vet Visit
+Playtime
+
+Responsibilities:
+
+createTask()
+updateTask()
+markTaskCompleted()
+setPriority()
+Schedule
+
+Responsible for organizing tasks by time and priority.
+
+Attributes:
+
+scheduleId
+date
+taskList
+
+Responsibilities:
+
+addTaskToSchedule()
+removeTaskFromSchedule()
+sortTasksByPriority()
+viewSchedule()
+Plan
+
+Responsible for creating the daily care plan.
+
+Attributes:
+
+planId
+date
+petId
+dailyTasks
+planReason
+
+Responsibilities:
+
+generateDailyPlan()
+explainPlan()
+updatePlan()
+
+Example reason:
+
+The plan was created because the pet has a high-priority feeding task in the morning, a walking
 **b. Design changes**
 
 - Did your design change during implementation?
