@@ -1,0 +1,67 @@
+classDiagram
+    class Owner {
+        +String ownerId
+        +String name
+        +String email
+        +String password
+        +String phoneNumber
+        +List~Pet~ pets
+        +addPet(pet)
+        +removePet(petId)
+        +viewPets() List~Pet~
+        +getAllTasks() List~Task~
+        +editProfile(**kwargs)
+    }
+
+    class Pet {
+        +String petId
+        +String name
+        +int age
+        +String petType
+        +String breed
+        +String specialNeeds
+        +List~Task~ tasks
+        +addTask(task)
+        +removeTask(taskId)
+        +completeTask(taskId) Task
+        +updatePetDetails(**kwargs)
+        +viewPetProfile() dict
+        +getPetCareNeeds() List~String~
+    }
+
+    class Task {
+        +String taskId
+        +String taskName
+        +String taskType
+        +String description
+        +String priority
+        +String dueTime
+        +int duration
+        +String status
+        +String frequency
+        +Date dueDate
+        +String petId
+        +startMinutes() int
+        +endMinutes() int
+        +updateTask(**kwargs)
+        +markTaskCompleted() Task
+        +setPriority(priority)
+    }
+
+    class Scheduler {
+        +getAllTasks(owner) List~Task~
+        +filterTasks(owner, petId, petName, status, taskType, priority) List~Task~
+        +getPendingTasks(owner) List~Task~
+        +getTasksByPriority(owner, priority) List~Task~
+        +getTasksForPet(owner, petId) List~Task~
+        +sortTasksByPriority(tasks) List~Task~
+        +sortTasksByTime(tasks) List~Task~
+        +generateDailySchedule(owner, forDate) List~Task~
+        +detectConflicts(owner) List~Tuple~
+        +getConflictWarnings(owner) List~String~
+    }
+
+    Owner "1" --> "many" Pet : owns
+    Pet "1" --> "many" Task : has
+    Scheduler ..> Owner : reads tasks from
+    Scheduler ..> Task : sorts, filters, checks conflicts

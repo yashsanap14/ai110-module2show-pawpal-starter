@@ -3,8 +3,8 @@ from pawpal_system import Owner, Pet, Task, Scheduler
 # --- Setup ---
 owner = Owner("u1", "Alex", "alex@email.com", "secret", "555-1234")
 
-dog = Pet("p1", "Biscuit", 3, "Dog", "Golden Retriever", 28.5)
-cat = Pet("p2", "Mochi", 5, "Cat", "Siamese", 4.2, special_needs="Needs hairball supplement")
+dog = Pet("p1", "Biscuit", 3, "Dog", "Golden Retriever")
+cat = Pet("p2", "Mochi", 5, "Cat", "Siamese", special_needs="Needs hairball supplement")
 
 owner.add_pet(dog)
 owner.add_pet(cat)
