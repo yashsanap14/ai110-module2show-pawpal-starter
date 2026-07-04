@@ -1,29 +1,59 @@
 from typing import List
 
+PRIORITY_LEVELS = {"high": 1, "medium": 2, "low": 3}
 
-class User:
-    def __init__(self, user_id: str, name: str, email: str, password: str, phone_number: str):
-        self.user_id = user_id
-        self.name = name
-        self.email = email
-        self.password = password
-        self.phone_number = phone_number
-        self.pets: List["Pet"] = []
 
-    def create_profile(self) -> None:
-        pass
+class Task:
+    """A single pet care activity."""
 
-    def add_pet(self, pet: "Pet") -> None:
-        pass
+    def __init__(
+        self,
+        task_id: str,
+        task_name: str,
+        task_type: str,
+        description: str,
+        priority: str,
+        due_time: str,
+        duration: int = 30,
+        status: str = "pending",
+        frequency: str = "once",
+    ):
+        if priority not in PRIORITY_LEVELS:
+            raise ValueError(f"priority must be one of {list(PRIORITY_LEVELS)}")
+        self.task_id = task_id
+        self.task_name = task_name
+        self.task_type = task_type
+        self.description = description
+        self.priority = priority
+        self.due_time = due_time
+        self.duration = duration  # minutes
+        self.status = status
+        self.frequency = frequency
 
-    def edit_profile(self, **kwargs) -> None:
-        pass
+    def update_task(self, **kwargs) -> None:
+        allowed = {"task_name", "task_type", "description", "priority", "due_time", "duration", "frequency"}
+        for key, value in kwargs.items():
+            if key not in allowed:
+                raise ValueError(f"Cannot update field: {key}")
+            if key == "priority" and value not in PRIORITY_LEVELS:
+                raise ValueError(f"priority must be one of {list(PRIORITY_LEVELS)}")
+            setattr(self, key, value)
 
-    def view_pets(self) -> List["Pet"]:
-        pass
+    def mark_task_completed(self) -> None:
+        self.status = "completed"
+
+    def set_priority(self, priority: str) -> None:
+        if priority not in PRIORITY_LEVELS:
+            raise ValueError(f"priority must be one of {list(PRIORITY_LEVELS)}")
+        self.priority = priority
+
+    def __repr__(self) -> str:
+        return f"Task({self.task_name!r}, priority={self.priority}, status={self.status})"
 
 
 class Pet:
+    """Stores pet details and owns a list of tasks."""
+
     def __init__(
         self,
         pet_id: str,
@@ -43,84 +73,103 @@ class Pet:
         self.weight = weight
         self.health_notes = health_notes
         self.special_needs = special_needs
-        self.tasks: List["Task"] = []
+        self.tasks: List[Task] = []
+
+    def add_task(self, task: Task) -> None:
+        self.tasks.append(task)
+
+    def remove_task(self, task_id: str) -> None:
+        self.tasks = [t for t in self.tasks if t.task_id != task_id]
 
     def update_pet_details(self, **kwargs) -> None:
-        pass
+        allowed = {"name", "age", "pet_type", "breed", "weight", "health_notes", "special_needs"}
+        for key, value in kwargs.items():
+            if key not in allowed:
+                raise ValueError(f"Cannot update field: {key}")
+            setattr(self, key, value)
 
     def view_pet_profile(self) -> dict:
-        pass
+        return {
+            "pet_id": self.pet_id,
+            "name": self.name,
+            "age": self.age,
+            "type": self.pet_type,
+            "breed": self.breed,
+            "weight": self.weight,
+            "health_notes": self.health_notes,
+            "special_needs": self.special_needs,
+            "task_count": len(self.tasks),
+        }
 
     def get_pet_care_needs(self) -> List[str]:
-        pass
+        needs = []
+        if self.special_needs:
+            needs.append(self.special_needs)
+        needs += [t.task_name for t in self.tasks if t.status == "pending"]
+        return needs
+
+    def __repr__(self) -> str:
+        return f"Pet({self.name!r}, type={self.pet_type})"
 
 
-class Task:
-    def __init__(
-        self,
-        task_id: str,
-        task_name: str,
-        task_type: str,
-        description: str,
-        priority: str,
-        due_time: str,
-        status: str = "pending",
-        frequency: str = "once",
-    ):
-        self.task_id = task_id
-        self.task_name = task_name
-        self.task_type = task_type
-        self.description = description
-        self.priority = priority
-        self.due_time = due_time
-        self.status = status
-        self.frequency = frequency
+class Owner:
+    """Manages multiple pets and provides access to all their tasks."""
 
-    def create_task(self) -> None:
-        pass
+    def __init__(self, owner_id: str, name: str, email: str, password: str, phone_number: str):
+        self.owner_id = owner_id
+        self.name = name
+        self.email = email
+        self.password = password
+        self.phone_number = phone_number
+        self.pets: List[Pet] = []
 
-    def update_task(self, **kwargs) -> None:
-        pass
+    def add_pet(self, pet: Pet) -> None:
+        self.pets.append(pet)
 
-    def mark_task_completed(self) -> None:
-        pass
+    def remove_pet(self, pet_id: str) -> None:
+        self.pets = [p for p in self.pets if p.pet_id != pet_id]
 
-    def set_priority(self, priority: str) -> None:
-        pass
+    def view_pets(self) -> List[Pet]:
+        return self.pets
 
+    def get_all_tasks(self) -> List[Task]:
+        # Flattens every pet's task list — this is the bridge Scheduler calls
+        return [task for pet in self.pets for task in pet.tasks]
 
-class Schedule:
-    def __init__(self, schedule_id: str, date: str):
-        self.schedule_id = schedule_id
-        self.date = date
-        self.task_list: List[Task] = []
+    def edit_profile(self, **kwargs) -> None:
+        allowed = {"name", "email", "phone_number"}
+        for key, value in kwargs.items():
+            if key not in allowed:
+                raise ValueError(f"Cannot update field: {key}")
+            setattr(self, key, value)
 
-    def add_task_to_schedule(self, task: Task) -> None:
-        pass
-
-    def remove_task_from_schedule(self, task_id: str) -> None:
-        pass
-
-    def sort_tasks_by_priority(self) -> List[Task]:
-        pass
-
-    def view_schedule(self) -> List[Task]:
-        pass
+    def __repr__(self) -> str:
+        return f"Owner({self.name!r}, pets={len(self.pets)})"
 
 
-class Plan:
-    def __init__(self, plan_id: str, date: str, pet_id: str):
-        self.plan_id = plan_id
-        self.date = date
-        self.pet_id = pet_id
-        self.daily_tasks: List[Task] = []
-        self.plan_reason: str = ""
+class Scheduler:
+    """Retrieves, organizes, and manages tasks across all of an owner's pets."""
 
-    def generate_daily_plan(self, pet: Pet, tasks: List[Task]) -> None:
-        pass
+    def get_all_tasks(self, owner: Owner) -> List[Task]:
+        return owner.get_all_tasks()
 
-    def explain_plan(self) -> str:
-        pass
+    def get_pending_tasks(self, owner: Owner) -> List[Task]:
+        return [t for t in owner.get_all_tasks() if t.status == "pending"]
 
-    def update_plan(self, tasks: List[Task]) -> None:
-        pass
+    def get_tasks_by_priority(self, owner: Owner, priority: str) -> List[Task]:
+        if priority not in PRIORITY_LEVELS:
+            raise ValueError(f"priority must be one of {list(PRIORITY_LEVELS)}")
+        return [t for t in owner.get_all_tasks() if t.priority == priority]
+
+    def sort_tasks_by_priority(self, tasks: List[Task]) -> List[Task]:
+        return sorted(tasks, key=lambda t: PRIORITY_LEVELS[t.priority])
+
+    def generate_daily_schedule(self, owner: Owner) -> List[Task]:
+        pending = self.get_pending_tasks(owner)
+        return self.sort_tasks_by_priority(pending)
+
+    def get_tasks_for_pet(self, owner: Owner, pet_id: str) -> List[Task]:
+        for pet in owner.pets:
+            if pet.pet_id == pet_id:
+                return pet.tasks
+        return []
