@@ -146,6 +146,18 @@ The plan was created because the pet has a high-priority feeding task in the mor
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+`Scheduler.detect_conflicts` checks whether two tasks' full `[start, end)` time
+windows overlap (using `due_time` + `duration`), instead of the cheaper check of
+only flagging tasks with an identical `due_time` string. The overlap check is
+more accurate — it also catches a 15-minute vet call at 07:15 colliding with a
+30-minute walk that started at 07:00, which an exact-match check would miss —
+but it costs an O(n²) pairwise comparison across every pending task, and it
+trusts that each task's `duration` estimate is realistic. For a single owner's
+daily task list (a handful of tasks per pet), that O(n²) cost is negligible, so
+trading a bit of extra computation for catching real, physically-impossible
+overlaps was the right call here. It would stop being reasonable if PawPal+
+ever scheduled for a shelter with hundreds of pets and tasks per day.
+
 ---
 
 ## 3. AI Collaboration
@@ -159,6 +171,19 @@ The plan was created because the pet has a high-priority feeding task in the mor
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+`detect_conflicts` started as a manual sweep: sort tasks by start time, keep a
+running `active` list of tasks whose window hasn't ended yet, and compare each
+new task against that list. I asked the assistant how that method could be
+simplified for readability, and it suggested replacing the sweep with
+`itertools.combinations(tasks, 2)` filtered by the overlap condition — no
+sorting, no manual "active window" bookkeeping, just "check every pair."
+Before accepting it, I checked the actual complexity: the sweep's active-list
+filtering is also O(n) per task in the worst case, so it's O(n²) overall too —
+the combinations version isn't slower for a daily task list, just shorter and
+easier to read. I ran both versions against the same test data (the 07:00
+walk vs. 07:15 vet call, and the two 12:00 nail-trim tasks) and got identical
+results, so I kept the simplified version.
 
 ---
 

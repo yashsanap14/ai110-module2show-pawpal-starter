@@ -84,14 +84,12 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
-
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `Scheduler.sort_tasks_by_time()`, `Scheduler.sort_tasks_by_priority()` | `sort_tasks_by_time` orders tasks chronologically by `due_time` (converted to minutes since midnight), breaking ties by priority. `sort_tasks_by_priority` orders by priority tier first, breaking ties chronologically. `generate_daily_schedule()` uses `sort_tasks_by_time` to build each day's agenda. |
+| Filtering | `Scheduler.filter_tasks()` (+ shortcuts `get_pending_tasks()`, `get_tasks_by_priority()`, `get_tasks_for_pet()`) | One generic method filters by any combination of `pet_id`, `pet_name`, `status`, `task_type`, and `priority` in a single pass, instead of one hardcoded method per filter. |
+| Conflict handling | `Scheduler.detect_conflicts()`, `Scheduler.get_conflict_warnings()` | Compares every pair of a day's pending tasks (`itertools.combinations`) and flags any whose `[start, end)` time windows overlap — catching both exact-same-time collisions and overlapping-duration collisions (e.g. a 30-minute walk that swallows a 15-minute call). `get_conflict_warnings()` returns printable warning strings instead of raising, so a conflicting schedule never crashes the app. |
+| Recurring tasks | `Task.mark_task_completed()`, `Pet.complete_task()` | Completing a task with `frequency` of `"daily"` or `"weekly"` automatically creates and returns a new `Task` for the next occurrence (`due_date` advanced with `datetime.timedelta`), while the original stays `"completed"` as history. `Pet.complete_task()` wires the new occurrence back into the pet's task list. `generate_daily_schedule()` only shows tasks due on the target date, so a next-day occurrence doesn't appear early. |
 
 ## 📸 Demo Walkthrough
 
