@@ -70,16 +70,34 @@ Run `python3 main.py` to see the schedule in the terminal:
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest
 
 # Run with coverage:
 pytest --cov
 ```
 
+The suite in `tests/test_pawpal.py` covers 23 tests across 5 areas:
+
+- **Sorting** — `sort_tasks_by_time` returns chronological order and breaks same-time ties by priority; `sort_tasks_by_priority` groups by tier then time; sorting an empty list doesn't crash.
+- **Recurrence** — completing a `daily`/`weekly` task returns a new `Task` due one day/week later and wires it back into the pet's task list; a `once` task returns `None` and isn't re-added; completing an unknown task ID is a no-op.
+- **Conflict detection** — exact-same-time tasks and partially-overlapping-duration tasks are flagged; back-to-back tasks (end time == next start time) are not; completed tasks are excluded from conflict checks.
+- **Edge cases** — a pet/owner with zero tasks doesn't error; an invalid priority raises `ValueError` on task creation and on filtering; `generate_daily_schedule` excludes tasks due on other dates.
+- **Filtering** — `filter_tasks` correctly combines `pet_name`, `status`, and `priority` filters, and returns everything when called with no filters.
+
+**Confidence level: ⭐⭐⭐⭐☆ (4/5)** — core scheduling logic (sorting, recurrence, conflicts) is well covered and all tests pass. Not yet covered: `Owner`/`Pet` CRUD edge cases (e.g. removing a pet/task mid-iteration) and the Streamlit UI layer in `app.py`.
+
 Sample test output:
 
 ```
-# Paste your pytest output here
+============================= test session starts ==============================
+platform darwin -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0
+rootdir: /path/to/ai110-module2show-pawpal-starter
+plugins: anyio-4.14.0
+collected 23 items
+
+tests/test_pawpal.py .......................                             [100%]
+
+============================== 23 passed in 0.02s ==============================
 ```
 
 ## 📐 Smarter Scheduling

@@ -97,8 +97,6 @@ class Pet:
         age: int,
         pet_type: str,
         breed: str,
-        weight: float,
-        health_notes: str = "",
         special_needs: str = "",
     ):
         self.pet_id = pet_id
@@ -106,8 +104,6 @@ class Pet:
         self.age = age
         self.pet_type = pet_type
         self.breed = breed
-        self.weight = weight
-        self.health_notes = health_notes
         self.special_needs = special_needs
         self.tasks: List[Task] = []
 
@@ -129,7 +125,7 @@ class Pet:
         return None
 
     def update_pet_details(self, **kwargs) -> None:
-        allowed = {"name", "age", "pet_type", "breed", "weight", "health_notes", "special_needs"}
+        allowed = {"name", "age", "pet_type", "breed", "special_needs"}
         for key, value in kwargs.items():
             if key not in allowed:
                 raise ValueError(f"Cannot update field: {key}")
@@ -142,8 +138,6 @@ class Pet:
             "age": self.age,
             "type": self.pet_type,
             "breed": self.breed,
-            "weight": self.weight,
-            "health_notes": self.health_notes,
             "special_needs": self.special_needs,
             "task_count": len(self.tasks),
         }

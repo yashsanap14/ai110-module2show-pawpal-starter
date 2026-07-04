@@ -62,7 +62,7 @@ with col4:
 
 if st.button("Add pet"):
     pet_id = f"p{len(owner.pets) + 1}"
-    owner.add_pet(Pet(pet_id, pet_name, int(age), species, breed, weight=0.0))
+    owner.add_pet(Pet(pet_id, pet_name, int(age), species, breed))
 
 if owner.pets:
     st.write("Current pets:")
